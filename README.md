@@ -2,7 +2,7 @@
 
 Prototipo de aplicación web gamificada para identificar y repasar los elementos de la tabla periódica. Está pensado para estudiantes universitarios de química general.
 
-**Demo en línea:** https://TU-USUARIO.github.io/elemquest/
+**Demo en línea:** https://digaby.github.io/elemquest/
 
 ## Objetivo
 
