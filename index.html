@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ElemQuest · Prototipo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Figtree:wght@400;600&display=swap">
+<style>
+:root{--bg:#eef2f4;--sf:#fff;--ink:#14213d;--mut:#5b6678;--ln:#cfd8de;--ac:#1b998b;--acd:#0f6f64;--ok:#2e9e5b;--mid:#e9a23b;--bad:#d1495b;--b0:#dfe5ea;--b1:#f3b8bf;--b2:#f6d79b;--b3:#b9e2c8;--b4:#6cc58f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1722;--sf:#172233;--ink:#e8eef6;--mut:#9aa8bb;--ln:#2a3a50;--ac:#3cc4b4;--acd:#7fe0d3;--b0:#223045;--b1:#6b2f3a;--b2:#6b5426;--b3:#27583b;--b4:#2f7d52}}
+:root[data-theme="dark"]{--bg:#0f1722;--sf:#172233;--ink:#e8eef6;--mut:#9aa8bb;--ln:#2a3a50;--ac:#3cc4b4;--acd:#7fe0d3;--b0:#223045;--b1:#6b2f3a;--b2:#6b5426;--b3:#27583b;--b4:#2f7d52}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Figtree,system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1,h2,.sym{font-family:"Bricolage Grotesque",Georgia,sans-serif}
+h1{font-size:1.5rem;margin:0}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.stats{display:flex;gap:8px;font-size:.9rem}
+.pill{background:var(--sf);border:1px solid var(--ln);border-radius:999px;padding:4px 12px}
+.bar{height:6px;background:var(--ln);border-radius:3px;margin:10px 0 14px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ac);transition:width .4s}
+nav{display:flex;gap:6px;margin-bottom:14px}
+nav button{flex:1;padding:10px;border:1px solid var(--ln);background:var(--sf);color:var(--ink);border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+nav button[aria-selected=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:16px}
+.cell{width:132px;border:2px solid var(--ink);border-radius:6px;padding:8px 10px;margin:0 auto 14px;text-align:left;background:var(--bg)}
+.cell small{display:block;color:var(--mut);font-size:.75rem;min-height:1.1em}
+.cell .sym{font-size:2.8rem;font-weight:700;line-height:1.05}
+.cell .nm{font-size:.8rem}
+.clues{list-style:none;padding:0;margin:0 0 12px}
+.clues li{padding:8px 0;border-bottom:1px dashed var(--ln)}
+.clues li b{color:var(--acd)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opts button,.act{padding:12px;border:1px solid var(--ln);background:var(--bg);color:var(--ink);border-radius:8px;font:inherit;cursor:pointer;min-height:48px}
+.opts button:hover:not(:disabled){border-color:var(--ac)}
+.opts .ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.opts .no{background:var(--bad);color:#fff;border-color:var(--bad)}
+.act.main{background:var(--ac);color:#06201d;border-color:var(--ac);font-weight:600}
+.row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.fb{margin-top:12px;padding:10px 12px;border-left:4px solid var(--ac);background:var(--bg);border-radius:4px}
+.q{font-size:1.25rem;font-family:"Bricolage Grotesque",sans-serif;margin:0 0 12px}
+.scroll{overflow-x:auto}
+.pt{display:grid;grid-template-columns:repeat(18,minmax(34px,1fr));gap:3px;min-width:640px}
+.pt button{aspect-ratio:1;border:1px solid var(--ln);border-radius:4px;background:var(--b0);color:var(--ink);cursor:pointer;font:600 .8rem "Bricolage Grotesque",sans-serif;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+.pt button em{font:normal .55rem Figtree,sans-serif;color:var(--mut)}
+.leg{display:flex;gap:10px;flex-wrap:wrap;font-size:.8rem;margin:10px 0;color:var(--mut)}
+.leg span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px;border:1px solid var(--ln);background:var(--c)}
+.hint{color:var(--mut);font-size:.85rem;margin-top:14px}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>ElemQuest</h1>
+  <div class="stats" id="stats"></div>
+</header>
+<div class="bar" aria-hidden="true"><i id="xpb"></i></div>
+<nav role="tablist">
+  <button role="tab" data-t="det">Detective</button>
+  <button role="tab" data-t="fla">Relámpago</button>
+  <button role="tab" data-t="map">Mi tabla</button>
+</nav>
+<section id="v" class="card" aria-live="polite"></section>
+<p class="hint">Prototipo con los primeros 36 elementos (H–Kr). El progreso se guarda en este navegador.</p>
+</main>
+<script>
+const CAT={nm:"no metal",ng:"gas noble",am:"metal alcalino",at:"alcalinotérreo",mt:"metaloide",ha:"halógeno",tr:"metal de transición",pm:"metal postransición"};
+// [Z, símbolo, nombre, grupo, periodo, categoría, pista]
+const E=[
+[1,"H","Hidrógeno",1,1,"nm","Es el elemento más abundante del universo."],
+[2,"He","Helio",18,1,"ng","Infla globos y enfría los imanes de las resonancias magnéticas."],
+[3,"Li","Litio",1,2,"am","Está en las baterías recargables de tu celular."],
+[4,"Be","Berilio",2,2,"at","Aleado con cobre da herramientas que no producen chispas."],
+[5,"B","Boro",13,2,"mt","Forma parte del vidrio resistente de laboratorio."],
+[6,"C","Carbono",14,2,"nm","Base de la química orgánica; el diamante es una de sus formas."],
+[7,"N","Nitrógeno",15,2,"nm","Compone cerca del 78 % del aire."],
+[8,"O","Oxígeno",16,2,"nm","Lo necesitas para respirar y forma el 21 % del aire."],
+[9,"F","Flúor",17,2,"ha","Es el más electronegativo de todos y está en la pasta dental."],
+[10,"Ne","Neón",18,2,"ng","Brilla rojo anaranjado en los letreros luminosos."],
+[11,"Na","Sodio",1,3,"am","Reacciona con violencia con el agua y forma la sal común."],
+[12,"Mg","Magnesio",2,3,"at","Arde con llama blanca y está en el centro de la clorofila."],
+[13,"Al","Aluminio",13,3,"pm","Metal ligero de las latas y el papel de cocina."],
+[14,"Si","Silicio",14,3,"mt","Es la base de los chips de computadora."],
+[15,"P","Fósforo",15,3,"nm","Está en el ADN y en la cabeza de las cerillas."],
+[16,"S","Azufre",16,3,"nm","Sólido amarillo; sus compuestos huelen a huevo podrido."],
+[17,"Cl","Cloro",17,3,"ha","Gas verdoso que desinfecta el agua de las piscinas."],
+[18,"Ar","Argón",18,3,"ng","Es el tercer gas más abundante del aire y rellena bombillas."],
+[19,"K","Potasio",1,4,"am","Abunda en los plátanos y es clave para los impulsos nerviosos."],
+[20,"Ca","Calcio",2,4,"at","Forma huesos y dientes."],
+[21,"Sc","Escandio",3,4,"tr","Se usa en aleaciones ligeras para bicicletas de competición."],
+[22,"Ti","Titanio",4,4,"tr","Metal ligero y resistente de prótesis e implantes."],
+[23,"V","Vanadio",5,4,"tr","Se añade al acero para fabricar herramientas muy duras."],
+[24,"Cr","Cromo",6,4,"tr","Da el brillo cromado y es clave en el acero inoxidable."],
+[25,"Mn","Manganeso",7,4,"tr","Endurece el acero y está en las pilas alcalinas."],
+[26,"Fe","Hierro",8,4,"tr","Es el núcleo de la Tierra y la base del acero."],
+[27,"Co","Cobalto",9,4,"tr","Da el azul intenso al vidrio y está en la vitamina B12."],
+[28,"Ni","Níquel",10,4,"tr","Se usa en monedas y en baterías recargables."],
+[29,"Cu","Cobre",11,4,"tr","Excelente conductor eléctrico; está en los cables."],
+[30,"Zn","Zinc",12,4,"tr","Protege al hierro de la corrosión en el galvanizado."],
+[31,"Ga","Galio",13,4,"pm","Metal que se funde en la palma de la mano."],
+[32,"Ge","Germanio",14,4,"mt","Semiconductor de los primeros transistores."],
+[33,"As","Arsénico",15,4,"mt","Veneno clásico de las novelas policiacas."],
+[34,"Se","Selenio",16,4,"nm","Se usa en fotocopiadoras y champús anticaspa."],
+[35,"Br","Bromo",17,4,"ha","Único no metal líquido a temperatura ambiente."],
+[36,"Kr","Criptón",18,4,"ng","Su nombre significa oculto; ilumina pistas de aeropuertos."]
+];
+const $=s=>document.querySelector(s);
+const today=()=>new Date().toISOString().slice(0,10);
+let S={xp:0,streak:0,last:"",p:{}},tab="det",cur=null,last=null,shown=1,done=false,sel=null;
+try{const r=localStorage.getItem("elemquest");if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+const save=()=>{try{localStorage.setItem("elemquest",JSON.stringify(S))}catch(e){}};
+const box=z=>(S.p[z]&&S.p[z].b)||0;
+const RANKS=[[0,"Aprendiz"],[60,"Alquimista"],[180,"Químico/a"],[400,"Mendeléyev"]];
+function rank(){let r=0;RANKS.forEach((x,i)=>{if(S.xp>=x[0])r=i});return r}
+function stats(){
+  const r=rank(),a=RANKS[r][0],b=RANKS[r+1]?RANKS[r+1][0]:a+1;
+  $("#stats").innerHTML=`<span class="pill">${RANKS[r][1]}</span><span class="pill">${S.xp} XP</span><span class="pill">Racha ${S.streak}</span>`;
+  $("#xpb").style.width=(RANKS[r+1]?Math.min(100,(S.xp-a)/(b-a)*100):100)+"%";
+}
+function streak(){
+  const t=today();if(S.last===t)return;
+  const d=S.last?Math.round((new Date(t)-new Date(S.last))/864e5):0;
+  S.streak=(S.last&&d<=2)?S.streak+1:1;S.last=t; // un día de gracia
+}
+function pick(){
+  const w=E.map(e=>e===last?0:Math.pow(5-box(e[0]),2)+1),T=w.reduce((a,b)=>a+b,0);
+  let r=Math.random()*T,i=0;for(;i<E.length-1;i++){r-=w[i];if(r<=0)break}
+  return E[i];
+}
+function grade(e,ok,xp){
+  const p=S.p[e[0]]||{b:0,n:0,ok:0};p.n++;
+  if(ok){p.ok++;p.b=Math.min(4,p.b+1);S.xp+=xp;streak()}else p.b=0;
+  S.p[e[0]]=p;save();stats();
+}
+const shuffle=a=>a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+function distract(e,f,n=3){
+  const same=E.filter(x=>x!==e&&x[5]===e[5]),rest=E.filter(x=>x!==e&&x[5]!==e[5]);
+  const pool=shuffle(same).slice(0,2).concat(shuffle(rest));
+  const out=[];for(const x of pool){const v=f(x);if(!out.includes(v)&&v!==f(e))out.push(v);if(out.length===n)break}
+  return out;
+}
+function cell(e,hide){
+  return `<div class="cell"><small>${hide?"":e[0]}</small><div class="sym">${hide?"?":e[1]}</div><div class="nm">${hide?"&nbsp;":e[2]}</div></div>`;
+}
+function optsHTML(opts,ans){
+  return `<div class="opts">${shuffle(opts).map(o=>`<button data-o="${o}" data-a="${ans}">${o}</button>`).join("")}</div>`;
+}
+function nextBtn(){return `<div class="row"><button class="act main" id="nx">Siguiente</button></div>`}
+
+// --- Detective ---
+function detNew(){cur=pick();shown=1;done=false;detView()}
+function detView(){
+  const e=cur,cl=[`Está en el periodo <b>${e[4]}</b>, grupo <b>${e[3]}</b>.`,`Es un <b>${CAT[e[5]]}</b>.`,e[6],`Su número atómico es <b>${e[0]}</b>.`];
+  let h=cell(e,!done)+`<ul class="clues">${cl.slice(0,shown).map(c=>`<li>${c}</li>`).join("")}</ul>`;
+  const ans=e[2];
+  h+=optsHTML([ans].concat(distract(e,x=>x[2])),ans);
+  h+=`<div class="row">${shown<4?`<button class="act" id="mp">Otra pista (menos XP)</button>`:""}</div><div id="fb"></div>`;
+  $("#v").innerHTML=h;
+  bindOpts(ans,()=>{const xp=[10,7,4,2][shown-1];grade(e,true,xp);return `+${xp} XP`},()=>grade(e,false,0),()=>`${e[2]} (${e[1]}) es un ${CAT[e[5]]} del grupo ${e[3]}, periodo ${e[4]}. Tu repaso se adelanta para volver a verlo pronto.`);
+  const mp=$("#mp");if(mp)mp.onclick=()=>{shown++;detView()};
+}
+// --- Relámpago ---
+function flaNew(){
+  cur=pick();const e=cur,t=Math.floor(Math.random()*3);
+  let q,ans,opts;
+  if(t===0){q=`¿Cuál es el símbolo de <b>${e[2]}</b>?`;ans=e[1];opts=[ans].concat(distract(e,x=>x[1]))}
+  else if(t===1){q=`¿Qué elemento es <b>${e[1]}</b>?`;ans=e[2];opts=[ans].concat(distract(e,x=>x[2]))}
+  else{q=`¿Cuál es el número atómico de <b>${e[2]}</b>?`;ans=String(e[0]);opts=[ans].concat(distract(e,x=>String(x[0])))}
+  done=false;
+  $("#v").innerHTML=`<p class="q">${q}</p>${optsHTML(opts,ans)}<div id="fb"></div>`;
+  bindOpts(ans,()=>{grade(e,true,5);return "+5 XP"},()=>grade(e,false,0),()=>`${e[2]}: símbolo ${e[1]}, número atómico ${e[0]}, grupo ${e[3]}.`);
+}
+function bindOpts(ans,onOk,onNo,expl){
+  document.querySelectorAll(".opts button").forEach(b=>b.onclick=()=>{
+    if(done)return;done=true;last=cur;
+    const ok=b.dataset.o===ans;let msg;
+    if(ok)msg=onOk();else{onNo();msg="Casi."}
+    document.querySelectorAll(".opts button").forEach(x=>{x.disabled=true;if(x.dataset.o===ans)x.classList.add("ok");else if(x===b)x.classList.add("no")});
+    const mp=$("#mp");if(mp)mp.remove();
+    if(tab==="det"){const c=$(".cell");c.outerHTML=cell(cur,false)}
+    $("#fb").innerHTML=`<div class="fb"><b>${ok?"Correcto. "+msg:"Respuesta: "+ans}</b><br>${expl()}</div>`+nextBtn();
+    $("#nx").onclick=tab==="det"?detNew:flaNew;$("#nx").focus();
+  });
+}
+// --- Mapa ---
+function mapView(){
+  const lab=["Sin ver","Débil","En repaso","Bien","Dominado"];
+  let g="";
+  E.forEach(e=>{
+    let c=e[3],r=e[4];
+    if(e[0]===1)c=1;
+    g+=`<button style="grid-column:${c};grid-row:${r}" data-z="${e[0]}" style="" aria-label="${e[2]}, ${lab[box(e[0])]}" title="${e[2]}"><span style="position:absolute"></span>${e[1]}<em>${box(e[0])}/4</em></button>`;
+  });
+  const dom=E.filter(e=>box(e[0])===4).length;
+  $("#v").innerHTML=`<h2 style="margin:0 0 4px;font-size:1.15rem">Tu mapa de dominio</h2><p style="margin:0;color:var(--mut)">${dom} de ${E.length} elementos dominados. Cada acierto sube un nivel; un fallo lo reinicia.</p>
+  <div class="leg">${lab.map((l,i)=>`<span style="--c:var(--b${i})">${i} ${l}</span>`).join("")}</div>
+  <div class="scroll"><div class="pt" id="pt">${g}</div></div><div id="info" style="margin-top:12px"></div>`;
+  document.querySelectorAll("#pt button").forEach(b=>{
+    b.style.background=`var(--b${box(+b.dataset.z)})`;
+    b.onclick=()=>{const e=E[b.dataset.z-1];
+      $("#info").innerHTML=`<div class="fb"><b>${e[2]} (${e[1]})</b>, Z = ${e[0]}, periodo ${e[4]}, grupo ${e[3]}, ${CAT[e[5]]}.<br>${e[6]}</div>`}
+  });
+}
+function show(){
+  document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===tab));
+  if(tab==="det")detNew();else if(tab==="fla")flaNew();else mapView();
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;show()});
+stats();show();
+</script>
+</body>
+</html>
